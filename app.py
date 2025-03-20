@@ -30,17 +30,12 @@ if st.button("Estimar Días"):
 
 # Mostrar y editar días estimados
 if st.session_state.dias_estimados is not None:
-    st.success(f"Días imputados estimados: {st.session_state.dias_estimados}")
+    st.success(f"Días imputados: {st.session_state.dias_estimados}")
     st.session_state.dias_final = st.number_input("Editar días imputados (opcional):",
                                                  value=st.session_state.dias_final,
                                                  step=1.0, key="dias_edit")
 
-    # Validación automática
-    dias_maximos = plazo * 30
-    if st.session_state.dias_final > dias_maximos:
-        st.warning(f"⚠️ Los días imputados superan el máximo recomendado ({dias_maximos} días para {plazo} meses). Revisa los datos.")
-
-    if st.button("Estimar Coste Total"):
+        if st.button("Estimar Coste Total"):
         coste_estimado = predecir_coste(certificacion, plazo, subcontrata, st.session_state.dias_final)
         st.success(f"Coste total estimado: {coste_estimado:.2f} EUR")
 
@@ -68,9 +63,15 @@ if st.session_state.dias_estimados is not None:
 # Mostrar historial de predicciones
 if st.session_state.historial:
     st.subheader("Historial de Proyectos")
-    historial_df = pd.DataFrame(st.session_state.historial)
-    seleccion = st.multiselect("Selecciona proyectos para comparar:", historial_df.index, format_func=lambda i: f"Proyecto {i+1}")
-    st.dataframe(historial_df, use_container_width=True)
+historial_df = pd.DataFrame(st.session_state.historial)
+seleccion = st.multiselect("Selecciona proyectos para comparar o eliminar:", historial_df.index, format_func=lambda i: f"Proyecto {i+1}")
+st.dataframe(historial_df, use_container_width=True)
+
+if seleccion:
+    if st.button("Eliminar proyectos seleccionados"):
+        for idx in sorted(seleccion, reverse=True):
+            st.session_state.historial.pop(idx)
+        st.experimental_rerun()
 
     if seleccion:
         # Graficas comparativas
@@ -87,3 +88,4 @@ if st.session_state.historial:
         ax[1].set_title("Días Imputados vs Certificación")
 
         st.pyplot(fig)
+
