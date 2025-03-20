@@ -64,27 +64,29 @@ if st.session_state.dias_estimados is not None:
 if st.session_state.historial:
     st.subheader("Historial de Proyectos")
     historial_df = pd.DataFrame(st.session_state.historial)
-    seleccion = st.multiselect("Selecciona proyectos para comparar o eliminar:", historial_df.index, format_func=lambda i: f"Proyecto {i+1}")
+    seleccion = st.multiselect("Selecciona proyectos para comparar:", historial_df.index, format_func=lambda i: f"Proyecto {i+1}")
+
+    # Mostrar tabla completa del historial con índice numérico
     st.dataframe(historial_df, use_container_width=True)
 
+    # Eliminar proyectos marcados
+    eliminar_indices = st.multiselect("Selecciona proyectos para eliminar:", historial_df.index, key="delete_select")
+    if st.button("Eliminar proyectos seleccionados") and eliminar_indices:
+        st.session_state.historial = [proj for idx, proj in enumerate(st.session_state.historial) if idx not in eliminar_indices]
+        st.success("Proyectos eliminados correctamente. Recarga manual si no se refleja.")
+
+    # Mostrar gráficas si hay selección
     if seleccion:
-        if st.button("Eliminar proyectos seleccionados"):
-            for idx in sorted(seleccion, reverse=True):
-                st.session_state.historial.pop(idx)
-            st.experimental_rerun()
+        st.subheader("Comparativa de Costes y Días Imputados")
+        sub_df = historial_df.loc[seleccion]
 
-        if seleccion:
-            # Graficas comparativas
-            st.subheader("Comparativa de Costes y Días Imputados")
-            sub_df = historial_df.loc[seleccion]
+        fig, ax = plt.subplots(2, 1, figsize=(8, 8))
+        sub_df.plot(kind='bar', x='Certificación (EUR)', y='Coste Total (EUR)', ax=ax[0], legend=False, color='skyblue')
+        ax[0].set_ylabel("Coste Total (EUR)")
+        ax[0].set_title("Coste Total vs Certificación")
 
-            fig, ax = plt.subplots(2, 1, figsize=(8, 8))
-            sub_df.plot(kind='bar', x='Certificación (EUR)', y='Coste Total (EUR)', ax=ax[0], legend=False, color='skyblue')
-            ax[0].set_ylabel("Coste Total (EUR)")
-            ax[0].set_title("Coste Total vs Certificación")
+        sub_df.plot(kind='bar', x='Certificación (EUR)', y='Días Imputados', ax=ax[1], legend=False, color='lightgreen')
+        ax[1].set_ylabel("Días Imputados")
+        ax[1].set_title("Días Imputados vs Certificación")
 
-            sub_df.plot(kind='bar', x='Certificación (EUR)', y='Días Imputados', ax=ax[1], legend=False, color='lightgreen')
-            ax[1].set_ylabel("Días Imputados")
-            ax[1].set_title("Días Imputados vs Certificación")
-
-            st.pyplot(fig)
+        st.pyplot(fig)
