@@ -4,8 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from model_predict import predecir_dias
 from cost_predict import predecir_coste
-from fpdf import FPDF
-import io
 
 st.set_page_config(page_title="Estimador de Proyectos", layout="centered")
 st.title("📊 Estimador de Días Imputados y Coste Total")
@@ -63,26 +61,11 @@ if st.session_state.dias_estimados is not None:
             'Coste Total (EUR)': coste_estimado
         })
 
-        # Generar PDF resumen individual en memoria
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt="Resumen del Proyecto", ln=True, align='C')
-        pdf.ln(10)
-        for param, val in zip(resumen_data['Parámetro'], resumen_data['Valor']):
-            pdf.cell(200, 10, txt=f"{param}: {val}", ln=True)
-
-        buffer = io.BytesIO()
-        pdf.output(buffer)
-        buffer.seek(0)
-
-        st.download_button("🔗 Descargar resumen en PDF", data=buffer, file_name="resumen_proyecto.pdf", mime="application/pdf")
-
 # Mostrar historial de predicciones
 if st.session_state.historial:
     st.subheader("Historial de Proyectos")
     historial_df = pd.DataFrame(st.session_state.historial)
-    seleccion = st.multiselect("Selecciona proyectos para exportar:", historial_df.index, format_func=lambda i: f"Proyecto {i+1}")
+    seleccion = st.multiselect("Selecciona proyectos para comparar:", historial_df.index, format_func=lambda i: f"Proyecto {i+1}")
     st.dataframe(historial_df, use_container_width=True)
 
     if seleccion:
@@ -100,21 +83,3 @@ if st.session_state.historial:
         ax[1].set_title("Días Imputados vs Certificación")
 
         st.pyplot(fig)
-
-        # Generar PDF resumen multiple en memoria
-        pdf_multi = FPDF()
-        pdf_multi.add_page()
-        pdf_multi.set_font("Arial", size=12)
-        pdf_multi.cell(200, 10, txt="Resumen Comparativo de Proyectos", ln=True, align='C')
-        pdf_multi.ln(10)
-        for idx in seleccion:
-            row = historial_df.loc[idx]
-            for col in historial_df.columns:
-                pdf_multi.cell(200, 10, txt=f"{col}: {row[col]}", ln=True)
-            pdf_multi.ln(5)
-
-        buffer_multi = io.BytesIO()
-        pdf_multi.output(buffer_multi)
-        buffer_multi.seek(0)
-
-        st.download_button("🔗 Descargar historial seleccionado en PDF", data=buffer_multi, file_name="historial_proyectos.pdf", mime="application/pdf")
