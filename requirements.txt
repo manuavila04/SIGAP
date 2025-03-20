@@ -3,5 +3,5 @@ scikit-learn
 xgboost
 pandas
 numpy
+matplotlib
 fpdf
-io
