@@ -63,7 +63,7 @@ if st.session_state.dias_estimados is not None:
             'Coste Total (EUR)': coste_estimado
         })
 
-        # Generar PDF resumen individual
+        # Generar PDF resumen individual en memoria
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
@@ -72,11 +72,11 @@ if st.session_state.dias_estimados is not None:
         for param, val in zip(resumen_data['Parámetro'], resumen_data['Valor']):
             pdf.cell(200, 10, txt=f"{param}: {val}", ln=True)
 
-        pdf_output = "resumen_proyecto.pdf"
-        pdf.output(pdf_output)
+        buffer = io.BytesIO()
+        pdf.output(buffer)
+        buffer.seek(0)
 
-        with open(pdf_output, "rb") as file:
-            st.download_button("🔗 Descargar resumen en PDF", data=file, file_name="resumen_proyecto.pdf", mime="application/pdf")
+        st.download_button("🔗 Descargar resumen en PDF", data=buffer, file_name="resumen_proyecto.pdf", mime="application/pdf")
 
 # Mostrar historial de predicciones
 if st.session_state.historial:
@@ -101,7 +101,7 @@ if st.session_state.historial:
 
         st.pyplot(fig)
 
-        # Generar PDF resumen multiple
+        # Generar PDF resumen multiple en memoria
         pdf_multi = FPDF()
         pdf_multi.add_page()
         pdf_multi.set_font("Arial", size=12)
@@ -113,8 +113,8 @@ if st.session_state.historial:
                 pdf_multi.cell(200, 10, txt=f"{col}: {row[col]}", ln=True)
             pdf_multi.ln(5)
 
-        pdf_multi_output = "historial_proyectos.pdf"
-        pdf_multi.output(pdf_multi_output)
+        buffer_multi = io.BytesIO()
+        pdf_multi.output(buffer_multi)
+        buffer_multi.seek(0)
 
-        with open(pdf_multi_output, "rb") as file:
-            st.download_button("🔗 Descargar historial seleccionado en PDF", data=file, file_name="historial_proyectos.pdf", mime="application/pdf")
+        st.download_button("🔗 Descargar historial seleccionado en PDF", data=buffer_multi, file_name="historial_proyectos.pdf", mime="application/pdf")
