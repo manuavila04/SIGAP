@@ -28,14 +28,14 @@ if st.button("Estimar Días"):
     st.session_state.dias_estimados = predecir_dias(certificacion, plazo, subcontrata)
     st.session_state.dias_final = st.session_state.dias_estimados
 
-# Mostrar y editar días estimados
+# Mostrar y editar días imputados
 if st.session_state.dias_estimados is not None:
     st.success(f"Días imputados: {st.session_state.dias_estimados}")
     st.session_state.dias_final = st.number_input("Editar días imputados (opcional):",
                                                  value=st.session_state.dias_final,
                                                  step=1.0, key="dias_edit")
 
-        if st.button("Estimar Coste Total"):
+    if st.button("Estimar Coste Total"):
         coste_estimado = predecir_coste(certificacion, plazo, subcontrata, st.session_state.dias_final)
         st.success(f"Coste total estimado: {coste_estimado:.2f} EUR")
 
@@ -63,29 +63,28 @@ if st.session_state.dias_estimados is not None:
 # Mostrar historial de predicciones
 if st.session_state.historial:
     st.subheader("Historial de Proyectos")
-historial_df = pd.DataFrame(st.session_state.historial)
-seleccion = st.multiselect("Selecciona proyectos para comparar o eliminar:", historial_df.index, format_func=lambda i: f"Proyecto {i+1}")
-st.dataframe(historial_df, use_container_width=True)
-
-if seleccion:
-    if st.button("Eliminar proyectos seleccionados"):
-        for idx in sorted(seleccion, reverse=True):
-            st.session_state.historial.pop(idx)
-        st.experimental_rerun()
+    historial_df = pd.DataFrame(st.session_state.historial)
+    seleccion = st.multiselect("Selecciona proyectos para comparar o eliminar:", historial_df.index, format_func=lambda i: f"Proyecto {i+1}")
+    st.dataframe(historial_df, use_container_width=True)
 
     if seleccion:
-        # Graficas comparativas
-        st.subheader("Comparativa de Costes y Días Imputados")
-        sub_df = historial_df.loc[seleccion]
+        if st.button("Eliminar proyectos seleccionados"):
+            for idx in sorted(seleccion, reverse=True):
+                st.session_state.historial.pop(idx)
+            st.experimental_rerun()
 
-        fig, ax = plt.subplots(2, 1, figsize=(8, 8))
-        sub_df.plot(kind='bar', x='Certificación (EUR)', y='Coste Total (EUR)', ax=ax[0], legend=False, color='skyblue')
-        ax[0].set_ylabel("Coste Total (EUR)")
-        ax[0].set_title("Coste Total vs Certificación")
+        if seleccion:
+            # Graficas comparativas
+            st.subheader("Comparativa de Costes y Días Imputados")
+            sub_df = historial_df.loc[seleccion]
 
-        sub_df.plot(kind='bar', x='Certificación (EUR)', y='Días Imputados', ax=ax[1], legend=False, color='lightgreen')
-        ax[1].set_ylabel("Días Imputados")
-        ax[1].set_title("Días Imputados vs Certificación")
+            fig, ax = plt.subplots(2, 1, figsize=(8, 8))
+            sub_df.plot(kind='bar', x='Certificación (EUR)', y='Coste Total (EUR)', ax=ax[0], legend=False, color='skyblue')
+            ax[0].set_ylabel("Coste Total (EUR)")
+            ax[0].set_title("Coste Total vs Certificación")
 
-        st.pyplot(fig)
+            sub_df.plot(kind='bar', x='Certificación (EUR)', y='Días Imputados', ax=ax[1], legend=False, color='lightgreen')
+            ax[1].set_ylabel("Días Imputados")
+            ax[1].set_title("Días Imputados vs Certificación")
 
+            st.pyplot(fig)
