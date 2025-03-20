@@ -6,6 +6,7 @@ from model_predict import predecir_dias
 from cost_predict import predecir_coste
 
 st.set_page_config(page_title="Estimador de Proyectos", layout="centered")
+st.image("logo.png", width=200)
 st.title("📊 Estimador de Días Imputados y Coste Total")
 
 # Inicializar estado de sesión
