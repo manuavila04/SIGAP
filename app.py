@@ -1,5 +1,6 @@
 # app.py (Interfaz web con Streamlit)
 import streamlit as st
+import pandas as pd
 from model_predict import predecir_dias
 from cost_predict import predecir_coste
 
@@ -34,10 +35,11 @@ if st.session_state.dias_estimados is not None:
         coste_estimado = predecir_coste(certificacion, plazo, subcontrata, st.session_state.dias_final)
         st.success(f"Coste total estimado: {coste_estimado:.2f} EUR")
 
-        # Mostrar resumen
-        st.subheader("Resumen")
-        st.write(f"- Certificación: {certificacion} EUR")
-        st.write(f"- Plazo: {plazo} meses")
-        st.write(f"- Subcontratación: {subcontrata}")
-        st.write(f"- Días Imputados: {st.session_state.dias_final}")
-        st.write(f"- Coste Total: {coste_estimado:.2f} EUR")
+        # Mostrar resumen como tabla
+        st.subheader("Resumen del Proyecto")
+        resumen_data = {
+            'Parámetro': ['Certificación (EUR)', 'Plazo (meses)', 'Subcontratación', 'Días Imputados', 'Coste Total (EUR)'],
+            'Valor': [certificacion, plazo, subcontrata, st.session_state.dias_final, f"{coste_estimado:.2f}"]
+        }
+        resumen_df = pd.DataFrame(resumen_data)
+        st.table(resumen_df)
