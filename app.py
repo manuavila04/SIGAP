@@ -37,7 +37,7 @@ if st.session_state.dias_estimados is not None:
 
     if st.button("Estimar Coste Total"):
         coste_estimado = predecir_coste(certificacion, plazo, subcontrata, st.session_state.dias_final)
-        st.success(f"Coste total estimado: {coste_estimado:.2f} EUR")
+        st.success(f"Coste total de personal: {coste_estimado:.2f} EUR")
 
         # Mostrar resumen como tabla mejorada
         st.subheader("Resumen del Proyecto")
