@@ -10,7 +10,7 @@ df = pd.read_csv('bbdd3.csv', encoding='ISO-8859-1', delimiter=';')
 
 # Inputs: columnas 3,4,8,9 (índices 3,4,8,9), Output: columna 7 (índice 7)
 X = df.iloc[:, [3, 4, 8, 9]].values
-y = df.iloc[:, 7].values
+y = df.iloc[:, 5].values
 
 # Preprocesamiento: columna 2 de X (índice 2 global = columna 8) es categórica
 preprocessor = ColumnTransformer(
